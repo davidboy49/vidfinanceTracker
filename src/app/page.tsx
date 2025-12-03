@@ -2,12 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, TrendingUp, TrendingDown, Wallet, Target, DollarSign, Calendar, Filter, X } from 'lucide-react';
 
+interface Transaction {
+  id: number;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+  createdAt: string;
+}
+
 const ExpenseTrackerApp = () => {
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [filterType, setFilterType] = useState('all');
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [newTransaction, setNewTransaction] = useState({
-    type: 'expense',
+    type: 'expense' as 'income' | 'expense',
     amount: '',
     category: '',
     description: '',
@@ -30,7 +40,7 @@ const ExpenseTrackerApp = () => {
     }
   }, []);
 
-  const saveToStorage = (data) => {
+  const saveToStorage = (data: Transaction[]) => {
     localStorage.setItem('transactions', JSON.stringify(data));
   };
 
@@ -58,7 +68,7 @@ const ExpenseTrackerApp = () => {
     setShowAddModal(false);
   };
 
-  const deleteTransaction = (id) => {
+  const deleteTransaction = (id: number) => {
     const updated = transactions.filter(t => t.id !== id);
     setTransactions(updated);
     saveToStorage(updated);
@@ -83,8 +93,8 @@ const ExpenseTrackerApp = () => {
     filterType === 'all' ? true : t.type === filterType
   );
 
-  const getMonthlyData = () => {
-    const months = {};
+  const getMonthlyData = (): Record<string, { income: number; expense: number }> => {
+    const months: Record<string, { income: number; expense: number }> = {};
     transactions.forEach(t => {
       const month = new Date(t.date).toLocaleString('default', { month: 'short' });
       if (!months[month]) months[month] = { income: 0, expense: 0 };
